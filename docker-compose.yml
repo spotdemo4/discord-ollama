@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+  discord-ollama:
+    build:
+      context: .
+    environment:
+      DISCORD_TOKEN: ${DISCORD_TOKEN}
+      DISCORD_GUILD_ID: ${DISCORD_GUILD_ID}
+      OLLAMA_URL: ${OLLAMA_URL}
+      OLLAMA_MODEL: ${OLLAMA_MODEL}
+    container_name: discord-ollama
+    restart: unless-stopped
