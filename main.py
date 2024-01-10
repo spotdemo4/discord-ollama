@@ -37,7 +37,13 @@ async def send_long_message(channel, message):
 @tree.command(name="ask", description=f"Ask me a question", guild=discord.Object(id=os.getenv("DISCORD_GUILD_ID")))
 async def on_ask(interaction, question: str):
     await interaction.response.defer(thinking=True)
-    chat_response = chat([{"role": "user", "content": question}])
+    
+    messages = []
+    if (os.getenv("OLLAMA_SYSTEM_PROMPT")):
+        messages.append({"role": "system", "content": os.getenv("OLLAMA_SYSTEM_PROMPT")})
+    messages.append({"role": "user", "content": question})
+
+    chat_response = chat(messages)
     if chat_response:
         await interaction.followup.send(f"__Question: {question}__")
         await send_long_message(interaction.channel, chat_response)
@@ -73,6 +79,9 @@ async def on_message(message):
     if message.channel.name == f"Chat with {client.user.display_name}":
         messages = []
         oldest_skipped = False
+
+        if (os.getenv("OLLAMA_SYSTEM_PROMPT")):
+            messages.append({"role": "system", "content": os.getenv("OLLAMA_SYSTEM_PROMPT")})
         async for message in message.channel.history(limit=100, oldest_first=True):
             if not oldest_skipped:
                 oldest_skipped = True
